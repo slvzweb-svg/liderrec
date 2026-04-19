@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Nobre RP</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* === VARIÁVEIS BASE === */
+        :root {
+            --bg-base: #000000;
+            --bg-surface: #121212;
+            --bg-card: #1a1a1a;
+            --border: #2a2a2a;
+            --text-main: #ffffff;
+            --text-dim: #9e9e9e;
+            --accent: #d32f2f;
+            --accent-gold: #c5a059;
+            --radius: 8px;
+            --transition: 0.2s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background: var(--bg-base);
+            color: var(--text-main);
+            padding-top: 70px; /* Espaço para o header fixo */
+        }
+
+        /* === HEADER MOBILE FIRST === */
+        header {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            background: rgba(18, 18, 18, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 100;
+        }
+
+        .brand { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .brand i { color: var(--accent); }
+
+        .btn-logout {
+            background: transparent; border: 1px solid var(--border); color: var(--text-main);
+            padding: 6px 12px; border-radius: 4px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;
+        }
+
+        /* === NAVEGAÇÃO DE ABAS === */
+        .tabs {
+            display: flex; gap: 10px; padding: 16px; background: var(--bg-base);
+            position: sticky; top: 60px; z-index: 90; border-bottom: 1px solid var(--border);
+            overflow-x: auto; /* Permite scroll horizontal em telas muito pequenas */
+        }
+
+        .tab-btn {
+            flex: 1; min-width: 140px; padding: 12px; border: none; border-radius: var(--radius);
+            background: var(--bg-surface); color: var(--text-dim); font-weight: 600; font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .tab-btn.active { background: var(--accent); color: #fff; }
+
+        /* === LISTA DE CANDIDATOS === */
+        .container { padding: 16px; }
+        
+        .loading { text-align: center; color: var(--text-dim); padding: 40px; font-size: 0.9rem; }
+        .loading i { font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; }
+
+        .candidato-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px;
+        }
+
+        .candidato-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .candidato-nome { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
+        .candidato-discord { color: var(--accent-gold); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
+        
+        .badge-data { background: var(--bg-surface); color: var(--text-dim); font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); }
+
+        .btn-view {
+            width: 100%; background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-main);
+            padding: 10px; border-radius: 4px; font-weight: 500; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        /* === MODAL DE DETALHES (FULL SCREEN MOBILE) === */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-base); z-index: 1000; overflow-y: auto;
+            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .modal.active { transform: translateY(0); }
+
+        .modal-header {
+            position: sticky; top: 0; background: var(--bg-surface); border-bottom: 1px solid var(--border);
+            padding: 16px; display: flex; justify-content: space-between; align-items: center; z-index: 10;
+        }
+        .modal-header h2 { font-size: 1.1rem; }
+        .btn-close { background: none; border: none; color: var(--text-main); font-size: 1.5rem; padding: 4px; }
+
+        .modal-body { padding: 16px; }
+        .qa-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+        .qa-pergunta { font-size: 0.85rem; color: var(--accent-gold); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .qa-resposta { font-size: 0.95rem; color: var(--text-main); line-height: 1.5; white-space: pre-wrap; }
+
+        /* Ajustes para telas maiores (Desktop/Tablet) */
+        @media (min-width: 768px) {
+            .container { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+            .tabs { justify-content: center; }
+            .tab-btn { flex: none; width: 200px; }
+            .modal {
+                background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+                display: flex; justify-content: center; align-items: center;
+                opacity: 0; visibility: hidden; transform: none;
+            }
+            .modal.active { opacity: 1; visibility: visible; }
+            .modal-content-wrapper {
+                background: var(--bg-base); width: 100%; max-width: 800px; max-height: 85vh;
+                border-radius: var(--radius); border: 1px solid var(--border); display: flex; flex-direction: column;
+                transform: scale(0.95); transition: 0.3s;
+            }
+            .modal.active .modal-content-wrapper { transform: scale(1); }
+            .modal-body { overflow-y: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand"><i class="fa-solid fa-chess-knight"></i> Painel Staff</div>
+        <button class="btn-logout" id="btnLogout"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="carregarAba('suporte')"><i class="fa-solid fa-headset"></i> Suporte</button>
+        <button class="tab-btn" onclick="carregarAba('lideranca')"><i class="fa-solid fa-crown"></i> Liderança</button>
+    </div>
+
+    <div class="container" id="listaCandidatos">
+        </div>
+
+    <div class="modal" id="modalDetalhes">
+        <div class="modal-content-wrapper">
+            <div class="modal-header">
+                <h2 id="modalTitle">Detalhes da Candidatura</h2>
+                <button class="btn-close" onclick="fecharModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwVQFewEN1mQDe0pnIEVU_H98l5JCeciI",
+            authDomain: "site-f55e1.firebaseapp.com",
+            projectId: "site-f55e1",
+            storageBucket: "site-f55e1.firebasestorage.app",
+            messagingSenderId: "800441189890",
+            appId: "1:800441189890:web:27f8911aa47964665f091b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let abaAtual = 'suporte';
+        let dadosAtuais = []; // Armazena os dados baixados para abrir no modal
+
+        // Proteção de Rota (Verifica se está logado)
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'index.html'; // Mude para o nome do seu arquivo principal
+            } else {
+                carregarAba('suporte'); // Carrega a primeira aba
+            }
+        });
+
+        // Logout
+        document.getElementById('btnLogout').addEventListener('click', () => {
+            signOut(auth).then(() => window.location.href = 'index.html');
+        });
+
+        // Troca de Abas e Busca no Banco
+        window.carregarAba = async function(aba) {
+            abaAtual = aba;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            const container = document.getElementById('listaCandidatos');
+            container.innerHTML = '<div class="loading"><i class="fa-solid fa-circle-notch fa-spin"></i><p>Buscando dados no servidor...</p></div>';
+
+            const colecao = aba === 'suporte' ? 'candidatos_suporte' : 'candidatos_lideranca';
+            
+            try {
+                // Busca os dados ordenados do mais recente para o mais antigo
+                const q = query(collection(db, colecao), orderBy("data_inscricao", "desc"));
+                // Nota: se falhar por falta de índice no Firebase, remova o orderBy("data_inscricao", "desc") na primeira vez.
+                // Usaremos um fallback caso falhe:
+                let snapshot;
+                try {
+                    snapshot = await getDocs(q);
+                } catch (e) {
+                    snapshot = await getDocs(collection(db, colecao));
+                }
+
+                dadosAtuais = [];
+                container.innerHTML = '';
+
+                if (snapshot.empty) {
+                    container.innerHTML = '<div class="loading"><p>Nenhum candidato encontrado nesta categoria.</p></div>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    data.id = doc.id;
+                    dadosAtuais.push(data);
+                    
+                    // Tratamento de data
+                    let dataFormatada = "Data desconhecida";
+                    if(data.data_inscricao && data.data_inscricao.toDate) {
+                        dataFormatada = data.data_inscricao.toDate().toLocaleDateString('pt-BR');
+                    } else if (data.data && data.data.toDate) { // Fallback para o de liderança
+                        dataFormatada = data.data.toDate().toLocaleDateString('pt-BR');
+                    }
+
+                    // Extrair Nome e Discord dependendo do formato do form
+                    const nome = aba === 'suporte' ? data.basico.nome : "Candidato Liderança";
+                    const discord = aba === 'suporte' ? data.basico.discord : data.discord;
+
+                    const card = document.createElement('div');
+                    card.className = 'candidato-card';
+                    card.innerHTML = `
+                        <div class="candidato-header">
+                            <div>
+                                <div class="candidato-nome">${nome}</div>
+                                <div class="candidato-discord"><i class="fa-brands fa-discord"></i> ${discord}</div>
+                            </div>
+                            <span class="badge-data">${dataFormatada}</span>
+                        </div>
+                        <button class="btn-view" onclick="abrirModal('${doc.id}')">
+                            <i class="fa-solid fa-file-lines"></i> Ler Ficha Completa
+                        </button>
+                    `;
+                    container.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error("Erro ao buscar dados: ", error);
+                container.innerHTML = '<div class="loading"><p>Erro ao carregar dados. Verifique o console.</p></div>';
+            }
+        };
+
+        // Abrir Modal de Detalhes
+        window.abrirModal = function(id) {
+            const candidato = dadosAtuais.find(c => c.id === id);
+            if(!candidato) return;
+
+            const modalBody = document.getElementById('modalBody');
+            document.getElementById('modalTitle').innerText = abaAtual === 'suporte' ? `Ficha: ${candidato.basico.nome}` : `Ficha Liderança: ${candidato.discord}`;
+            modalBody.innerHTML = '';
+
+            // Renderizar dados baseados na estrutura do documento
+            if (abaAtual === 'suporte') {
+                renderizarBloco(modalBody, "Dados Básicos", candidato.basico);
+                renderizarBloco(modalBody, "Perfil", candidato.perfil);
+                renderizarBloco(modalBody, "Situações Práticas", candidato.pratica);
+                renderizarBloco(modalBody, "Disponibilidade", candidato.disponibilidade);
+                renderizarBloco(modalBody, "Técnico", candidato.tecnico);
+                renderizarBloco(modalBody, "Psicológico", candidato.psicologico);
+            } else {
+                // Formato Liderança
+                let htmlRespostas = '';
+                // Ordenar chaves (pergunta_1, pergunta_2...)
+                const chaves = Object.keys(candidato.respostas).sort((a, b) => {
+                    return parseInt(a.replace('pergunta_', '')) - parseInt(b.replace('pergunta_', ''));
+                });
+                
+                chaves.forEach(key => {
+                    const num = key.replace('pergunta_', '');
+                    htmlRespostas += `
+                        <div class="qa-block">
+                            <div class="qa-pergunta">Pergunta ${num}</div>
+                            <div class="qa-resposta">${candidato.respostas[key]}</div>
+                        </div>
+                    `;
+                });
+                modalBody.innerHTML = htmlRespostas;
+            }
+
+            document.getElementById('modalDetalhes').classList.add('active');
+            document.body.style.overflow = 'hidden'; // Impede scroll do body no mobile
+        };
+
+        window.fecharModal = function() {
+            document.getElementById('modalDetalhes').classList.remove('active');
+            document.body.style.overflow = '';
+        };
+
+        // Helper para renderizar objetos aninhados do Suporte
+        function renderizarBloco(container, titulo, objeto) {
+            if(!objeto) return;
+            let html = `<h3 style="color: var(--text-main); margin: 20px 0 10px; font-size: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 5px;">${titulo}</h3>`;
+            
+            for (const [chave, valor] of Object.entries(objeto)) {
+                let displayValor = Array.isArray(valor) ? valor.join(', ') : valor;
+                let chaveFormatada = chave.replace(/_/g, ' ').toUpperCase();
+                html += `
+                    <div class="qa-block">
+                        <div class="qa-pergunta">${chaveFormatada}</div>
+                        <div class="qa-resposta">${displayValor}</div>
+                    </div>
+                `;
+            }
+            container.innerHTML += html;
+        }
+
+    </script>
+</body>
+</html>
