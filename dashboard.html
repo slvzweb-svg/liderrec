@@ -308,6 +308,19 @@
             renderizarCards(filtrados);
         };
 
+        // Função auxiliar para ordenar as chaves das perguntas por número
+        function ordenarPerguntasPorNumero(objeto) {
+            return Object.keys(objeto).sort((a, b) => {
+                const numA = parseInt(a.replace(/\D/g, ''));
+                const numB = parseInt(b.replace(/\D/g, ''));
+                
+                if (!isNaN(numA) && !isNaN(numB)) {
+                    return numA - numB;
+                }
+                return a.localeCompare(b);
+            });
+        }
+
         window.abrirModal = function(id) {
             const item = dadosAtuais.find(i => i.id === id);
             const modalBody = document.getElementById('modalBody');
@@ -318,14 +331,23 @@
                 secoes.forEach(sec => {
                     if(item[sec]) {
                         modalBody.innerHTML += `<h3 style="margin:15px 0 10px; color:#fff; font-size:0.9rem;">${sec.toUpperCase()}</h3>`;
-                        for(let [q, a] of Object.entries(item[sec])) {
-                            modalBody.innerHTML += `<div class="qa-block"><div class="qa-pergunta">${q}</div><div class="qa-resposta">${a}</div></div>`;
-                        }
+                        
+                        const chavesOrdenadas = ordenarPerguntasPorNumero(item[sec]);
+                        
+                        chavesOrdenadas.forEach(q => {
+                            const a = item[sec][q];
+                            let qFormatada = q.replace(/_/g, ' ').toUpperCase();
+                            modalBody.innerHTML += `<div class="qa-block"><div class="qa-pergunta">${qFormatada}</div><div class="qa-resposta">${a}</div></div>`;
+                        });
                     }
                 });
             } else if(item.respostas) {
-                Object.entries(item.respostas).forEach(([q, a]) => {
-                    modalBody.innerHTML += `<div class="qa-block"><div class="qa-pergunta">${q}</div><div class="qa-resposta">${a}</div></div>`;
+                const chavesOrdenadas = ordenarPerguntasPorNumero(item.respostas);
+                
+                chavesOrdenadas.forEach(q => {
+                    const a = item.respostas[q];
+                    let qFormatada = q.replace(/_/g, ' ').toUpperCase();
+                    modalBody.innerHTML += `<div class="qa-block"><div class="qa-pergunta">${qFormatada}</div><div class="qa-resposta">${a}</div></div>`;
                 });
             }
 
