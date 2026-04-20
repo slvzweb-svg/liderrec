@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Nobre RP</title>
+    <title>Dashboard Avançado | Nobre RP</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,8 +21,11 @@
             --text-dim: #9e9e9e;
             --accent: #d32f2f;
             --accent-gold: #c5a059;
+            --success: #2e7d32;
+            --danger: #c62828;
             --radius: 8px;
             --transition: 0.2s ease;
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.8);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -30,22 +33,16 @@
         body {
             background: var(--bg-base);
             color: var(--text-main);
-            padding-top: 70px; /* Espaço para o header fixo */
+            padding-top: 70px;
         }
 
-        /* === HEADER MOBILE FIRST === */
+        /* === HEADER === */
         header {
-            position: fixed;
-            top: 0; left: 0; width: 100%;
-            background: rgba(18, 18, 18, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 16px;
-            z-index: 100;
+            position: fixed; top: 0; left: 0; width: 100%;
+            background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); height: 60px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; z-index: 100;
         }
 
         .brand { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
@@ -53,44 +50,61 @@
 
         .btn-logout {
             background: transparent; border: 1px solid var(--border); color: var(--text-main);
-            padding: 6px 12px; border-radius: 4px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;
-            cursor: pointer;
+            padding: 6px 12px; border-radius: 4px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: var(--transition);
+        }
+        .btn-logout:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* === ABAS E CONTROLES === */
+        .dashboard-header {
+            position: sticky; top: 60px; z-index: 90;
+            background: var(--bg-base); border-bottom: 1px solid var(--border);
         }
 
-        /* === NAVEGAÇÃO DE ABAS === */
-        .tabs {
-            display: flex; gap: 10px; padding: 16px; background: var(--bg-base);
-            position: sticky; top: 60px; z-index: 90; border-bottom: 1px solid var(--border);
-            overflow-x: auto;
-        }
-
+        .tabs { display: flex; gap: 10px; padding: 16px 16px 8px 16px; overflow-x: auto; }
         .tab-btn {
             flex: 1; min-width: 140px; padding: 12px; border: none; border-radius: var(--radius);
             background: var(--bg-surface); color: var(--text-dim); font-weight: 600; font-size: 0.9rem;
-            display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: var(--transition);
         }
         .tab-btn.active { background: var(--accent); color: #fff; }
 
-        /* === LISTA DE CANDIDATOS === */
+        .controls {
+            display: flex; gap: 10px; padding: 8px 16px 16px 16px; flex-wrap: wrap;
+        }
+        .search-box, .filter-box {
+            background: var(--bg-surface); border: 1px solid var(--border); border-radius: 4px;
+            color: var(--text-main); padding: 10px; font-size: 0.9rem; outline: none; transition: var(--transition);
+        }
+        .search-box:focus, .filter-box:focus { border-color: var(--accent); }
+        .search-box { flex: 2; min-width: 200px; }
+        .filter-box { flex: 1; min-width: 120px; }
+
+        /* === LISTA E CARDS === */
         .container { padding: 16px; }
-        
         .loading { text-align: center; color: var(--text-dim); padding: 40px; font-size: 0.9rem; }
         .loading i { font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; }
 
         .candidato-card {
             background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
             padding: 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px;
+            position: relative; overflow: hidden;
         }
 
         .candidato-header { display: flex; justify-content: space-between; align-items: flex-start; }
         .candidato-nome { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
         .candidato-discord { color: var(--accent-gold); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
         
-        .badge-data { background: var(--bg-surface); color: var(--text-dim); font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); }
+        .badges-container { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+        .badge-data { background: var(--bg-surface); color: var(--text-dim); font-size: 0.7rem; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); }
+        
+        .badge-status { font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-pendente { background: #ff980020; color: #ff9800; border: 1px solid #ff980040; }
+        .status-aprovado { background: #4caf5020; color: #4caf50; border: 1px solid #4caf5040; }
+        .status-reprovado { background: #f4433620; color: #f44336; border: 1px solid #f4433640; }
 
         .btn-view {
             width: 100%; background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-main);
-            padding: 10px; border-radius: 4px; font-weight: 500; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+            padding: 10px; border-radius: 4px; font-weight: 500; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: var(--transition);
         }
         .btn-view:hover { background: var(--border); }
 
@@ -99,6 +113,7 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-base); z-index: 1000; overflow-y: auto;
             transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column;
         }
         .modal.active { transform: translateY(0); }
 
@@ -109,25 +124,53 @@
         .modal-header h2 { font-size: 1.1rem; }
         .btn-close { background: none; border: none; color: var(--text-main); font-size: 1.5rem; padding: 4px; cursor: pointer; }
 
-        .modal-body { padding: 16px; }
+        .modal-body { padding: 16px; flex: 1; }
         .qa-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
         .qa-pergunta { font-size: 0.85rem; color: var(--accent-gold); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         .qa-resposta { font-size: 0.95rem; color: var(--text-main); line-height: 1.5; white-space: pre-wrap; }
 
+        .modal-footer {
+            position: sticky; bottom: 0; background: var(--bg-surface); border-top: 1px solid var(--border);
+            padding: 16px; display: flex; gap: 10px; z-index: 10;
+        }
+        .btn-action {
+            flex: 1; padding: 12px; border: none; border-radius: 4px; font-weight: 700; font-size: 0.9rem;
+            text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: var(--transition); color: #fff;
+        }
+        .btn-approve { background: var(--success); }
+        .btn-approve:hover { background: #1b5e20; }
+        .btn-reject { background: var(--danger); }
+        .btn-reject:hover { background: #b71c1c; }
+        .btn-pending { background: #ff9800; color: #000; }
+        
+        /* === TOASTS === */
+        .toast-wrapper { position: fixed; bottom: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 12px; }
+        .toast {
+            background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-main);
+            padding: 16px 20px; border-radius: 6px; box-shadow: var(--shadow-md); display: flex; align-items: center; gap: 12px;
+            font-size: 0.9rem; transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;
+        }
+        .toast::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+        .toast.success::before { background: #4caf50; }
+        .toast.error::before { background: var(--danger); }
+        .toast.info::before { background: #2196f3; }
+        .toast.show { transform: translateX(0); }
+
         @media (min-width: 768px) {
             .container { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-            .tabs { justify-content: center; }
-            .tab-btn { flex: none; width: 200px; }
+            .dashboard-header { display: flex; justify-content: center; flex-direction: column; align-items: center; }
+            .tabs { justify-content: center; width: 100%; max-width: 800px; }
+            .controls { justify-content: center; width: 100%; max-width: 800px; }
             .modal {
                 background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
                 display: flex; justify-content: center; align-items: center;
-                opacity: 0; visibility: hidden; transform: none;
+                opacity: 0; visibility: hidden; transform: none; flex-direction: row;
             }
             .modal.active { opacity: 1; visibility: visible; }
             .modal-content-wrapper {
-                background: var(--bg-base); width: 100%; max-width: 800px; max-height: 85vh;
+                background: var(--bg-base); width: 100%; max-width: 800px; height: 90vh;
                 border-radius: var(--radius); border: 1px solid var(--border); display: flex; flex-direction: column;
-                transform: scale(0.95); transition: 0.3s;
+                transform: scale(0.95); transition: 0.3s; overflow: hidden;
             }
             .modal.active .modal-content-wrapper { transform: scale(1); }
             .modal-body { overflow-y: auto; }
@@ -137,13 +180,24 @@
 <body>
 
     <header>
-        <div class="brand"><i class="fa-solid fa-chess-knight"></i> Painel Staff</div>
+        <div class="brand"><i class="fa-solid fa-chess-knight"></i> Nobre RP | Staff</div>
         <button class="btn-logout" id="btnLogout"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
     </header>
 
-    <div class="tabs">
-        <button class="tab-btn active" onclick="carregarAba('suporte', event)"><i class="fa-solid fa-headset"></i> Suporte</button>
-        <button class="tab-btn" onclick="carregarAba('lideranca', event)"><i class="fa-solid fa-crown"></i> Liderança</button>
+    <div class="dashboard-header">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="carregarAba('suporte', event)"><i class="fa-solid fa-headset"></i> Suporte</button>
+            <button class="tab-btn" onclick="carregarAba('lideranca', event)"><i class="fa-solid fa-crown"></i> Liderança</button>
+        </div>
+        <div class="controls">
+            <input type="text" id="searchInput" class="search-box" placeholder="Buscar por Nome ou Discord..." oninput="filtrarCards()">
+            <select id="statusFilter" class="filter-box" onchange="filtrarCards()">
+                <option value="todos">Todos os Status</option>
+                <option value="pendente">Pendentes</option>
+                <option value="aprovado">Aprovados</option>
+                <option value="reprovado">Reprovados</option>
+            </select>
+        </div>
     </div>
 
     <div class="container" id="listaCandidatos">
@@ -157,13 +211,17 @@
             </div>
             <div class="modal-body" id="modalBody">
                 </div>
+            <div class="modal-footer" id="modalFooter">
+                </div>
         </div>
     </div>
+
+    <div class="toast-wrapper" id="toastBox"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAwVQFewEN1mQDe0pnIEVU_H98l5JCeciI",
@@ -181,101 +239,167 @@
         let abaAtual = 'suporte';
         let dadosAtuais = []; 
 
-        // Proteção de Rota (Verifica se está logado)
+        // Função de Toasts Globais
+        window.emitirToast = function(mensagem, tipo = 'success') {
+            const caixa = document.getElementById('toastBox');
+            const toast = document.createElement('div');
+            toast.className = `toast ${tipo}`;
+            
+            let icone = '<i class="fa-solid fa-info-circle"></i>';
+            if(tipo === 'success') icone = '<i class="fa-solid fa-check"></i>';
+            if(tipo === 'error') icone = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                
+            toast.innerHTML = `${icone} <span>${mensagem}</span>`;
+            caixa.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => { 
+                toast.classList.remove('show'); 
+                setTimeout(() => toast.remove(), 400); 
+            }, 3000);
+        }
+
+        // Proteção de Rota
         onAuthStateChanged(auth, (user) => {
             if (!user) {
-                // Altere 'index.html' para o nome da página onde o login é feito, se necessário
                 window.location.href = 'index.html'; 
             } else {
                 carregarAba('suporte');
             }
         });
 
-        // Logout
         document.getElementById('btnLogout').addEventListener('click', () => {
             signOut(auth).then(() => window.location.href = 'index.html');
         });
 
-        // Busca no Banco SEM orderBy para evitar erro de índice
+        // Buscar Dados
         window.carregarAba = async function(aba, event) {
             abaAtual = aba;
             
-            // Atualiza classe visual dos botões
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             if(event) {
                 event.currentTarget.classList.add('active');
             } else {
-                // Se chamado automaticamente na inicialização
                 document.querySelector(`.tab-btn[onclick*="${aba}"]`).classList.add('active');
             }
 
+            // Resetar filtros
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = 'todos';
+
             const container = document.getElementById('listaCandidatos');
-            container.innerHTML = '<div class="loading"><i class="fa-solid fa-circle-notch fa-spin"></i><p>Buscando dados...</p></div>';
+            container.innerHTML = '<div class="loading"><i class="fa-solid fa-circle-notch fa-spin"></i><p>Sincronizando com o banco de dados...</p></div>';
 
             const colecao = aba === 'suporte' ? 'candidatos_suporte' : 'candidatos_lideranca';
             
             try {
                 const snapshot = await getDocs(collection(db, colecao));
-
                 dadosAtuais = [];
-                container.innerHTML = '';
-
+                
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="loading"><p>Nenhuma ficha encontrada em "' + colecao + '".</p></div>';
+                    container.innerHTML = `<div class="loading"><p>Nenhuma ficha encontrada em "${colecao}".</p></div>`;
                     return;
                 }
 
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     data.id = doc.id;
+                    data.status = data.status || 'pendente'; // Define status padrão
                     dadosAtuais.push(data);
-                    
-                    // Tratamento de data seguro
-                    let dataFormatada = "Data não registrada";
-                    if(data.data_inscricao && data.data_inscricao.toDate) {
-                        dataFormatada = data.data_inscricao.toDate().toLocaleDateString('pt-BR');
-                    } else if (data.data && data.data.toDate) { 
-                        dataFormatada = data.data.toDate().toLocaleDateString('pt-BR');
-                    }
-
-                    // Extrair Nome e Discord independentemente da estrutura exata
-                    const discord = aba === 'suporte' ? (data.basico?.discord || 'Sem Discord') : (data.discord || 'Sem Discord');
-                    const nome = aba === 'suporte' ? (data.basico?.nome || 'Candidato') : 'Candidatura Liderança';
-
-                    const card = document.createElement('div');
-                    card.className = 'candidato-card';
-                    card.innerHTML = `
-                        <div class="candidato-header">
-                            <div>
-                                <div class="candidato-nome">${nome}</div>
-                                <div class="candidato-discord"><i class="fa-brands fa-discord"></i> ${discord}</div>
-                            </div>
-                            <span class="badge-data">${dataFormatada}</span>
-                        </div>
-                        <button class="btn-view" onclick="abrirModal('${doc.id}')">
-                            <i class="fa-solid fa-file-lines"></i> Ver Detalhes
-                        </button>
-                    `;
-                    container.appendChild(card);
                 });
+
+                // Ordenar do mais recente para o mais antigo via JS (evita erro de index do Firebase)
+                dadosAtuais.sort((a, b) => {
+                    let dataA = a.data_inscricao || a.data || { seconds: 0 };
+                    let dataB = b.data_inscricao || b.data || { seconds: 0 };
+                    return dataB.seconds - dataA.seconds;
+                });
+
+                renderizarCards(dadosAtuais);
 
             } catch (error) {
                 console.error("Erro detalhado: ", error);
-                container.innerHTML = `<div class="loading"><p>Erro: ${error.message}</p></div>`;
+                container.innerHTML = `<div class="loading"><p>Erro ao carregar: ${error.message}</p></div>`;
             }
         };
 
-        // Abrir Modal de Detalhes
+        // Renderizar Cards na Tela
+        function renderizarCards(lista) {
+            const container = document.getElementById('listaCandidatos');
+            container.innerHTML = '';
+
+            if (lista.length === 0) {
+                container.innerHTML = '<div class="loading"><p>Nenhum resultado encontrado para os filtros atuais.</p></div>';
+                return;
+            }
+
+            lista.forEach(data => {
+                let dataFormatada = "Data não registrada";
+                if(data.data_inscricao && data.data_inscricao.toDate) {
+                    dataFormatada = data.data_inscricao.toDate().toLocaleDateString('pt-BR');
+                } else if (data.data && data.data.toDate) { 
+                    dataFormatada = data.data.toDate().toLocaleDateString('pt-BR');
+                }
+
+                const discord = abaAtual === 'suporte' ? (data.basico?.discord || 'Sem Discord') : (data.discord || 'Sem Discord');
+                const nome = abaAtual === 'suporte' ? (data.basico?.nome || 'Candidato') : 'Candidatura Liderança';
+                
+                let badgeStatus = `<span class="badge-status status-pendente"><i class="fa-regular fa-clock"></i> Pendente</span>`;
+                if(data.status === 'aprovado') badgeStatus = `<span class="badge-status status-aprovado"><i class="fa-solid fa-check"></i> Aprovado</span>`;
+                if(data.status === 'reprovado') badgeStatus = `<span class="badge-status status-reprovado"><i class="fa-solid fa-xmark"></i> Reprovado</span>`;
+
+                const card = document.createElement('div');
+                card.className = 'candidato-card';
+                card.innerHTML = `
+                    <div class="candidato-header">
+                        <div>
+                            <div class="candidato-nome">${nome}</div>
+                            <div class="candidato-discord"><i class="fa-brands fa-discord"></i> ${discord}</div>
+                        </div>
+                        <div class="badges-container">
+                            ${badgeStatus}
+                            <span class="badge-data">${dataFormatada}</span>
+                        </div>
+                    </div>
+                    <button class="btn-view" onclick="abrirModal('${data.id}')">
+                        <i class="fa-solid fa-folder-open"></i> Avaliar Ficha
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Filtros (Busca e Select)
+        window.filtrarCards = function() {
+            const termo = document.getElementById('searchInput').value.toLowerCase();
+            const statusFiltrado = document.getElementById('statusFilter').value;
+
+            const listaFiltrada = dadosAtuais.filter(item => {
+                const discord = (abaAtual === 'suporte' ? item.basico?.discord : item.discord) || '';
+                const nome = (abaAtual === 'suporte' ? item.basico?.nome : '') || '';
+                
+                const matchTexto = nome.toLowerCase().includes(termo) || discord.toLowerCase().includes(termo);
+                const matchStatus = statusFiltrado === 'todos' || item.status === statusFiltrado;
+
+                return matchTexto && matchStatus;
+            });
+
+            renderizarCards(listaFiltrada);
+        };
+
+        // Abrir Modal
         window.abrirModal = function(id) {
             const candidato = dadosAtuais.find(c => c.id === id);
             if(!candidato) return;
 
             const modalBody = document.getElementById('modalBody');
+            const modalFooter = document.getElementById('modalFooter');
             const nomeExibicao = abaAtual === 'suporte' ? (candidato.basico?.nome || 'Candidato') : candidato.discord;
             
             document.getElementById('modalTitle').innerText = abaAtual === 'suporte' ? `Ficha: ${nomeExibicao}` : `Ficha Liderança: ${nomeExibicao}`;
             modalBody.innerHTML = '';
 
+            // Conteúdo da Ficha
             if (abaAtual === 'suporte') {
                 renderizarBloco(modalBody, "Dados Básicos", candidato.basico);
                 renderizarBloco(modalBody, "Perfil", candidato.perfil);
@@ -299,10 +423,27 @@
                             </div>
                         `;
                     });
-                } else {
-                    htmlRespostas = '<p style="color: var(--text-dim);">Respostas não encontradas no banco de dados.</p>';
                 }
                 modalBody.innerHTML = htmlRespostas;
+            }
+
+            // Injetar Botões de Ação Dinâmicos
+            modalFooter.innerHTML = `
+                <button class="btn-action btn-approve" onclick="alterarStatus('${id}', 'aprovado')">
+                    <i class="fa-solid fa-check"></i> Aprovar
+                </button>
+                <button class="btn-action btn-reject" onclick="alterarStatus('${id}', 'reprovado')">
+                    <i class="fa-solid fa-xmark"></i> Reprovar
+                </button>
+            `;
+            
+            // Se já foi avaliado, mostra opção de voltar pra pendente
+            if(candidato.status !== 'pendente') {
+                modalFooter.innerHTML += `
+                    <button class="btn-action btn-pending" onclick="alterarStatus('${id}', 'pendente')">
+                        <i class="fa-solid fa-rotate-left"></i> Desfazer
+                    </button>
+                `;
             }
 
             document.getElementById('modalDetalhes').classList.add('active');
@@ -314,7 +455,32 @@
             document.body.style.overflow = '';
         };
 
-        // Helper para renderizar objetos aninhados do Suporte
+        // Alterar Status no Firebase
+        window.alterarStatus = async function(id, novoStatus) {
+            const colecao = abaAtual === 'suporte' ? 'candidatos_suporte' : 'candidatos_lideranca';
+            const docRef = doc(db, colecao, id);
+
+            try {
+                // Atualiza no banco
+                await updateDoc(docRef, { status: novoStatus });
+                
+                // Atualiza na memória (dadosAtuais)
+                const index = dadosAtuais.findIndex(c => c.id === id);
+                if(index !== -1) {
+                    dadosAtuais[index].status = novoStatus;
+                }
+
+                emitirToast(`Status alterado para ${novoStatus.toUpperCase()}!`, novoStatus === 'reprovado' ? 'error' : 'success');
+                fecharModal();
+                filtrarCards(); // Re-renderiza a lista respeitando os filtros atuais
+
+            } catch (error) {
+                console.error("Erro ao atualizar status:", error);
+                emitirToast("Erro ao alterar status. Verifique as permissões.", "error");
+            }
+        };
+
+        // Helper para blocos do Suporte
         function renderizarBloco(container, titulo, objeto) {
             if(!objeto) return;
             let html = `<h3 style="color: var(--text-main); margin: 20px 0 10px; font-size: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 5px;">${titulo}</h3>`;
