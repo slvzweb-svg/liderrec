@@ -54,19 +54,20 @@
         .btn-logout {
             background: transparent; border: 1px solid var(--border); color: var(--text-main);
             padding: 6px 12px; border-radius: 4px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;
+            cursor: pointer;
         }
 
         /* === NAVEGAÇÃO DE ABAS === */
         .tabs {
             display: flex; gap: 10px; padding: 16px; background: var(--bg-base);
             position: sticky; top: 60px; z-index: 90; border-bottom: 1px solid var(--border);
-            overflow-x: auto; /* Permite scroll horizontal em telas muito pequenas */
+            overflow-x: auto;
         }
 
         .tab-btn {
             flex: 1; min-width: 140px; padding: 12px; border: none; border-radius: var(--radius);
             background: var(--bg-surface); color: var(--text-dim); font-weight: 600; font-size: 0.9rem;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+            display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
         }
         .tab-btn.active { background: var(--accent); color: #fff; }
 
@@ -89,10 +90,11 @@
 
         .btn-view {
             width: 100%; background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-main);
-            padding: 10px; border-radius: 4px; font-weight: 500; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 10px; border-radius: 4px; font-weight: 500; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
         }
+        .btn-view:hover { background: var(--border); }
 
-        /* === MODAL DE DETALHES (FULL SCREEN MOBILE) === */
+        /* === MODAL DE DETALHES === */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-base); z-index: 1000; overflow-y: auto;
@@ -105,14 +107,13 @@
             padding: 16px; display: flex; justify-content: space-between; align-items: center; z-index: 10;
         }
         .modal-header h2 { font-size: 1.1rem; }
-        .btn-close { background: none; border: none; color: var(--text-main); font-size: 1.5rem; padding: 4px; }
+        .btn-close { background: none; border: none; color: var(--text-main); font-size: 1.5rem; padding: 4px; cursor: pointer; }
 
         .modal-body { padding: 16px; }
         .qa-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
         .qa-pergunta { font-size: 0.85rem; color: var(--accent-gold); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         .qa-resposta { font-size: 0.95rem; color: var(--text-main); line-height: 1.5; white-space: pre-wrap; }
 
-        /* Ajustes para telas maiores (Desktop/Tablet) */
         @media (min-width: 768px) {
             .container { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
             .tabs { justify-content: center; }
@@ -141,8 +142,8 @@
     </header>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="carregarAba('suporte')"><i class="fa-solid fa-headset"></i> Suporte</button>
-        <button class="tab-btn" onclick="carregarAba('lideranca')"><i class="fa-solid fa-crown"></i> Liderança</button>
+        <button class="tab-btn active" onclick="carregarAba('suporte', event)"><i class="fa-solid fa-headset"></i> Suporte</button>
+        <button class="tab-btn" onclick="carregarAba('lideranca', event)"><i class="fa-solid fa-crown"></i> Liderança</button>
     </div>
 
     <div class="container" id="listaCandidatos">
@@ -162,7 +163,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAwVQFewEN1mQDe0pnIEVU_H98l5JCeciI",
@@ -178,14 +179,15 @@
         const db = getFirestore(app);
 
         let abaAtual = 'suporte';
-        let dadosAtuais = []; // Armazena os dados baixados para abrir no modal
+        let dadosAtuais = []; 
 
         // Proteção de Rota (Verifica se está logado)
         onAuthStateChanged(auth, (user) => {
             if (!user) {
-                window.location.href = 'index.html'; // Mude para o nome do seu arquivo principal
+                // Altere 'index.html' para o nome da página onde o login é feito, se necessário
+                window.location.href = 'index.html'; 
             } else {
-                carregarAba('suporte'); // Carrega a primeira aba
+                carregarAba('suporte');
             }
         });
 
@@ -194,34 +196,32 @@
             signOut(auth).then(() => window.location.href = 'index.html');
         });
 
-        // Troca de Abas e Busca no Banco
-        window.carregarAba = async function(aba) {
+        // Busca no Banco SEM orderBy para evitar erro de índice
+        window.carregarAba = async function(aba, event) {
             abaAtual = aba;
+            
+            // Atualiza classe visual dos botões
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            if(event) {
+                event.currentTarget.classList.add('active');
+            } else {
+                // Se chamado automaticamente na inicialização
+                document.querySelector(`.tab-btn[onclick*="${aba}"]`).classList.add('active');
+            }
 
             const container = document.getElementById('listaCandidatos');
-            container.innerHTML = '<div class="loading"><i class="fa-solid fa-circle-notch fa-spin"></i><p>Buscando dados no servidor...</p></div>';
+            container.innerHTML = '<div class="loading"><i class="fa-solid fa-circle-notch fa-spin"></i><p>Buscando dados...</p></div>';
 
             const colecao = aba === 'suporte' ? 'candidatos_suporte' : 'candidatos_lideranca';
             
             try {
-                // Busca os dados ordenados do mais recente para o mais antigo
-                const q = query(collection(db, colecao), orderBy("data_inscricao", "desc"));
-                // Nota: se falhar por falta de índice no Firebase, remova o orderBy("data_inscricao", "desc") na primeira vez.
-                // Usaremos um fallback caso falhe:
-                let snapshot;
-                try {
-                    snapshot = await getDocs(q);
-                } catch (e) {
-                    snapshot = await getDocs(collection(db, colecao));
-                }
+                const snapshot = await getDocs(collection(db, colecao));
 
                 dadosAtuais = [];
                 container.innerHTML = '';
 
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="loading"><p>Nenhum candidato encontrado nesta categoria.</p></div>';
+                    container.innerHTML = '<div class="loading"><p>Nenhuma ficha encontrada em "' + colecao + '".</p></div>';
                     return;
                 }
 
@@ -230,17 +230,17 @@
                     data.id = doc.id;
                     dadosAtuais.push(data);
                     
-                    // Tratamento de data
-                    let dataFormatada = "Data desconhecida";
+                    // Tratamento de data seguro
+                    let dataFormatada = "Data não registrada";
                     if(data.data_inscricao && data.data_inscricao.toDate) {
                         dataFormatada = data.data_inscricao.toDate().toLocaleDateString('pt-BR');
-                    } else if (data.data && data.data.toDate) { // Fallback para o de liderança
+                    } else if (data.data && data.data.toDate) { 
                         dataFormatada = data.data.toDate().toLocaleDateString('pt-BR');
                     }
 
-                    // Extrair Nome e Discord dependendo do formato do form
-                    const nome = aba === 'suporte' ? data.basico.nome : "Candidato Liderança";
-                    const discord = aba === 'suporte' ? data.basico.discord : data.discord;
+                    // Extrair Nome e Discord independentemente da estrutura exata
+                    const discord = aba === 'suporte' ? (data.basico?.discord || 'Sem Discord') : (data.discord || 'Sem Discord');
+                    const nome = aba === 'suporte' ? (data.basico?.nome || 'Candidato') : 'Candidatura Liderança';
 
                     const card = document.createElement('div');
                     card.className = 'candidato-card';
@@ -253,15 +253,15 @@
                             <span class="badge-data">${dataFormatada}</span>
                         </div>
                         <button class="btn-view" onclick="abrirModal('${doc.id}')">
-                            <i class="fa-solid fa-file-lines"></i> Ler Ficha Completa
+                            <i class="fa-solid fa-file-lines"></i> Ver Detalhes
                         </button>
                     `;
                     container.appendChild(card);
                 });
 
             } catch (error) {
-                console.error("Erro ao buscar dados: ", error);
-                container.innerHTML = '<div class="loading"><p>Erro ao carregar dados. Verifique o console.</p></div>';
+                console.error("Erro detalhado: ", error);
+                container.innerHTML = `<div class="loading"><p>Erro: ${error.message}</p></div>`;
             }
         };
 
@@ -271,10 +271,11 @@
             if(!candidato) return;
 
             const modalBody = document.getElementById('modalBody');
-            document.getElementById('modalTitle').innerText = abaAtual === 'suporte' ? `Ficha: ${candidato.basico.nome}` : `Ficha Liderança: ${candidato.discord}`;
+            const nomeExibicao = abaAtual === 'suporte' ? (candidato.basico?.nome || 'Candidato') : candidato.discord;
+            
+            document.getElementById('modalTitle').innerText = abaAtual === 'suporte' ? `Ficha: ${nomeExibicao}` : `Ficha Liderança: ${nomeExibicao}`;
             modalBody.innerHTML = '';
 
-            // Renderizar dados baseados na estrutura do documento
             if (abaAtual === 'suporte') {
                 renderizarBloco(modalBody, "Dados Básicos", candidato.basico);
                 renderizarBloco(modalBody, "Perfil", candidato.perfil);
@@ -283,27 +284,29 @@
                 renderizarBloco(modalBody, "Técnico", candidato.tecnico);
                 renderizarBloco(modalBody, "Psicológico", candidato.psicologico);
             } else {
-                // Formato Liderança
                 let htmlRespostas = '';
-                // Ordenar chaves (pergunta_1, pergunta_2...)
-                const chaves = Object.keys(candidato.respostas).sort((a, b) => {
-                    return parseInt(a.replace('pergunta_', '')) - parseInt(b.replace('pergunta_', ''));
-                });
-                
-                chaves.forEach(key => {
-                    const num = key.replace('pergunta_', '');
-                    htmlRespostas += `
-                        <div class="qa-block">
-                            <div class="qa-pergunta">Pergunta ${num}</div>
-                            <div class="qa-resposta">${candidato.respostas[key]}</div>
-                        </div>
-                    `;
-                });
+                if(candidato.respostas) {
+                    const chaves = Object.keys(candidato.respostas).sort((a, b) => {
+                        return parseInt(a.replace('pergunta_', '')) - parseInt(b.replace('pergunta_', ''));
+                    });
+                    
+                    chaves.forEach(key => {
+                        const num = key.replace('pergunta_', '');
+                        htmlRespostas += `
+                            <div class="qa-block">
+                                <div class="qa-pergunta">Pergunta ${num}</div>
+                                <div class="qa-resposta">${candidato.respostas[key]}</div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    htmlRespostas = '<p style="color: var(--text-dim);">Respostas não encontradas no banco de dados.</p>';
+                }
                 modalBody.innerHTML = htmlRespostas;
             }
 
             document.getElementById('modalDetalhes').classList.add('active');
-            document.body.style.overflow = 'hidden'; // Impede scroll do body no mobile
+            document.body.style.overflow = 'hidden';
         };
 
         window.fecharModal = function() {
@@ -322,7 +325,7 @@
                 html += `
                     <div class="qa-block">
                         <div class="qa-pergunta">${chaveFormatada}</div>
-                        <div class="qa-resposta">${displayValor}</div>
+                        <div class="qa-resposta">${displayValor || 'Não respondido'}</div>
                     </div>
                 `;
             }
