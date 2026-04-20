@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Avançado | Nobre RP</title>
+    <title>Dashboard Ultra | Nobre RP</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,213 +11,176 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* === VARIÁVEIS BASE === */
         :root {
-            --bg-base: #000000;
-            --bg-surface: rgba(18, 18, 18, 0.65);
-            --bg-card: rgba(26, 26, 26, 0.6);
-            --border: rgba(42, 42, 42, 0.8);
+            --bg-base: #050505;
+            --bg-glass: rgba(18, 18, 18, 0.6);
+            --border: rgba(255, 255, 255, 0.1);
             --text-main: #ffffff;
-            --text-dim: #9e9e9e;
-            --accent: #d32f2f;
-            --accent-gold: #c5a059;
-            --success: #2e7d32;
-            --danger: #c62828;
-            --radius: 8px;
-            --transition: 0.2s ease;
-            --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --text-dim: #b3b3b3;
+            --accent: #ff3c3c;
+            --accent-gold: #ffb400;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --radius: 12px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
         body {
-            background: radial-gradient(circle at top, #181824, #000000);
-            background-attachment: fixed;
+            background: var(--bg-base);
             color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
             padding-top: 70px;
         }
 
-        /* === HEADER === */
-        header {
-            position: fixed; top: 0; left: 0; width: 100%;
-            background: rgba(18, 18, 18, 0.5); 
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border); height: 60px;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 16px; z-index: 100;
+        /* === EFEITO DE BORBOLETAS / PARTÍCULAS (BG) === */
+        .background-animate {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #000 100%);
+            overflow: hidden;
         }
 
-        .brand { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .brand i { color: var(--accent); }
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.5; }
+            80% { opacity: 0.5; }
+            100% { transform: translateY(-10vh) translateX(100px) rotate(360deg); opacity: 0; }
+        }
+
+        /* === HEADER ESTILO DISCORD === */
+        header {
+            position: fixed; top: 0; width: 100%; height: 60px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; z-index: 1000;
+        }
+
+        .brand { font-weight: 800; font-size: 1.2rem; letter-spacing: 1px; color: #fff; }
+        .brand span { color: var(--accent); }
 
         .btn-logout {
-            background: transparent; border: 1px solid var(--border); color: var(--text-main);
-            padding: 6px 12px; border-radius: 4px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: var(--transition);
+            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border);
+            color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: 0.3s;
         }
-        .btn-logout:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-logout:hover { background: var(--accent); border-color: var(--accent); }
 
-        /* === ABAS E CONTROLES === */
+        /* === DASHBOARD CONTROLS === */
         .dashboard-header {
-            position: sticky; top: 60px; z-index: 90;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
+            padding: 20px; max-width: 1200px; margin: 0 auto;
         }
 
-        .tabs { display: flex; gap: 10px; padding: 16px 16px 8px 16px; overflow-x: auto; background: transparent; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn {
-            flex: 1; min-width: 140px; padding: 12px; border: 1px solid transparent; border-radius: var(--radius);
-            background: var(--bg-surface); color: var(--text-dim); font-weight: 600; font-size: 0.9rem;
-            display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: var(--transition);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            flex: 1; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius);
+            background: var(--bg-glass); color: var(--text-dim); font-weight: 600;
+            cursor: pointer; transition: 0.3s; backdrop-filter: blur(10px);
         }
-        .tab-btn:hover { border: 1px solid var(--border); }
-        .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 20px rgba(255, 60, 60, 0.3); }
 
-        .controls {
-            display: flex; gap: 10px; padding: 8px 16px 16px 16px; flex-wrap: wrap;
+        .search-area {
+            display: flex; gap: 10px; margin-bottom: 20px;
         }
-        .search-box, .filter-box {
-            background: var(--bg-surface); border: 1px solid var(--border); border-radius: 4px;
-            color: var(--text-main); padding: 10px; font-size: 0.9rem; outline: none; transition: var(--transition);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        .search-box {
+            flex: 2; background: var(--bg-glass); border: 1px solid var(--border);
+            padding: 12px; border-radius: 8px; color: #fff; outline: none; backdrop-filter: blur(10px);
         }
-        .search-box:focus, .filter-box:focus { border-color: var(--accent); background: rgba(30, 30, 30, 0.8); }
-        .search-box { flex: 2; min-width: 200px; }
-        .filter-box { flex: 1; min-width: 120px; }
-        .filter-box option { background: #1a1a1a; color: #fff; }
 
-        /* === LISTA E CARDS === */
-        .container { padding: 16px; }
-        .loading { text-align: center; color: var(--text-dim); padding: 40px; font-size: 0.9rem; }
-        .loading i { font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; }
+        /* === CARDS ESTILO VIDRO === */
+        .container {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px; padding: 0 20px 40px; max-width: 1200px; margin: 0 auto;
+        }
 
         .candidato-card {
-            background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
-            padding: 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px;
-            position: relative; overflow: hidden; box-shadow: var(--shadow-md);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+        .candidato-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .candidato-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .candidato-nome { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
-        .candidato-discord { color: var(--accent-gold); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
-        
-        .badges-container { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
-        .badge-data { background: var(--bg-surface); color: var(--text-dim); font-size: 0.7rem; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); }
-        
-        .badge-status { font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .status-pendente { background: rgba(255, 152, 0, 0.2); color: #ff9800; border: 1px solid rgba(255, 152, 0, 0.4); }
-        .status-aprovado { background: rgba(76, 175, 80, 0.2); color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.4); }
-        .status-reprovado { background: rgba(244, 67, 54, 0.2); color: #f44336; border: 1px solid rgba(244, 67, 54, 0.4); }
-
-        .btn-view {
-            width: 100%; background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-main);
-            padding: 10px; border-radius: 4px; font-weight: 500; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: var(--transition);
+        .status-badge {
+            position: absolute; top: 15px; right: 15px;
+            padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
         }
-        .btn-view:hover { background: rgba(42, 42, 42, 0.8); }
+        .status-pendente { background: rgba(255, 180, 0, 0.15); color: var(--accent-gold); border: 1px solid var(--accent-gold); }
+        .status-aprovado { background: rgba(46, 204, 113, 0.15); color: var(--success); border: 1px solid var(--success); }
+        .status-reprovado { background: rgba(231, 76, 60, 0.15); color: var(--danger); border: 1px solid var(--danger); }
 
-        /* === MODAL DE DETALHES === */
+        .card-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; }
+        .card-discord { color: var(--accent-gold); font-size: 0.9rem; margin-bottom: 15px; display: flex; align-items: center; gap: 6px; }
+
+        .btn-open {
+            width: 100%; padding: 10px; border-radius: 8px; border: none;
+            background: rgba(255, 255, 255, 0.1); color: #fff; font-weight: 600;
+            cursor: pointer; transition: 0.3s;
+        }
+        .btn-open:hover { background: #fff; color: #000; }
+
+        /* === MODAL ULTRA === */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6); z-index: 1000; overflow-y: auto;
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex; flex-direction: column;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(15px);
+            display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px;
         }
-        .modal.active { transform: translateY(0); }
-
-        .modal-content-wrapper {
-            background: rgba(18, 18, 18, 0.85);
-            border: 1px solid var(--border);
-            display: flex; flex-direction: column; flex: 1;
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #111; border: 1px solid var(--border); width: 100%; max-width: 700px;
+            max-height: 85vh; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
-
-        .modal-header {
-            position: sticky; top: 0; background: rgba(18, 18, 18, 0.5); border-bottom: 1px solid var(--border);
-            padding: 16px; display: flex; justify-content: space-between; align-items: center; z-index: 10;
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-        }
-        .modal-header h2 { font-size: 1.1rem; }
-        .btn-close { background: none; border: none; color: var(--text-main); font-size: 1.5rem; padding: 4px; cursor: pointer; }
-
-        .modal-body { padding: 16px; flex: 1; }
-        .qa-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-        .qa-pergunta { font-size: 0.85rem; color: var(--accent-gold); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .qa-resposta { font-size: 0.95rem; color: var(--text-main); line-height: 1.5; white-space: pre-wrap; }
-
-        .modal-footer {
-            position: sticky; bottom: 0; background: rgba(18, 18, 18, 0.5); border-top: 1px solid var(--border);
-            padding: 16px; display: flex; gap: 10px; z-index: 10;
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-        }
-        .btn-action {
-            flex: 1; padding: 12px; border: none; border-radius: 4px; font-weight: 700; font-size: 0.9rem;
-            text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: var(--transition); color: #fff;
-        }
-        .btn-approve { background: rgba(46, 125, 50, 0.85); backdrop-filter: blur(4px); }
-        .btn-approve:hover { background: #1b5e20; }
-        .btn-reject { background: rgba(198, 40, 40, 0.85); backdrop-filter: blur(4px); }
-        .btn-reject:hover { background: #b71c1c; }
-        .btn-pending { background: rgba(255, 152, 0, 0.85); color: #000; backdrop-filter: blur(4px); }
+        .modal-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 20px; overflow-y: auto; }
+        .qa-box { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid var(--border); }
+        .qa-box label { color: var(--accent-gold); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 8px; }
         
-        /* === TOASTS === */
-        .toast-wrapper { position: fixed; bottom: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 12px; }
-        .toast {
-            background: rgba(18, 18, 18, 0.85); border: 1px solid var(--border); color: var(--text-main);
-            padding: 16px 20px; border-radius: 6px; box-shadow: var(--shadow-md); display: flex; align-items: center; gap: 12px;
-            font-size: 0.9rem; transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-        }
-        .toast::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
-        .toast.success::before { background: #4caf50; }
-        .toast.error::before { background: var(--danger); }
-        .toast.info::before { background: #2196f3; }
-        .toast.show { transform: translateX(0); }
+        .modal-footer { padding: 15px; display: flex; gap: 10px; border-top: 1px solid var(--border); background: #0a0a0a; }
+        .btn-approve { flex: 1; padding: 12px; border: none; border-radius: 8px; background: var(--success); color: #fff; font-weight: 700; cursor: pointer; }
+        .btn-reject { flex: 1; padding: 12px; border: none; border-radius: 8px; background: var(--danger); color: #fff; font-weight: 700; cursor: pointer; }
 
-        @media (min-width: 768px) {
-            .container { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-            .dashboard-header { display: flex; justify-content: center; flex-direction: column; align-items: center; }
-            .tabs { justify-content: center; width: 100%; max-width: 800px; }
-            .controls { justify-content: center; width: 100%; max-width: 800px; }
-            .modal {
-                background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-                display: flex; justify-content: center; align-items: center;
-                opacity: 0; visibility: hidden; transform: none; flex-direction: row;
-            }
-            .modal.active { opacity: 1; visibility: visible; }
-            .modal-content-wrapper {
-                background: rgba(18, 18, 18, 0.75); width: 100%; max-width: 800px; height: 90vh;
-                border-radius: var(--radius); border: 1px solid var(--border); display: flex; flex-direction: column;
-                transform: scale(0.95); transition: 0.3s; overflow: hidden; box-shadow: var(--shadow-md);
-            }
-            .modal.active .modal-content-wrapper { transform: scale(1); }
-            .modal-body { overflow-y: auto; }
-        }
+        /* TOASTS */
+        #toastBox { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+        .toast { background: #111; border-left: 4px solid var(--accent); color: #fff; padding: 15px 25px; border-radius: 4px; margin-top: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
     </style>
 </head>
 <body>
 
+    <div class="background-animate" id="particles"></div>
+
     <header>
-        <div class="brand"><i class="fa-solid fa-chess-knight"></i> Nobre RP | Staff</div>
-        <button class="btn-logout" id="btnLogout"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+        <div class="brand">NOBRE<span>RP</span></div>
+        <button class="btn-logout" id="btnLogout"><i class="fa-solid fa-power-off"></i> Sair</button>
     </header>
 
     <div class="dashboard-header">
         <div class="tabs">
-            <button class="tab-btn active" onclick="carregarAba('suporte', event)"><i class="fa-solid fa-headset"></i> Suporte</button>
-            <button class="tab-btn" onclick="carregarAba('lideranca', event)"><i class="fa-solid fa-crown"></i> Liderança</button>
+            <button class="tab-btn active" onclick="carregarAba('suporte', event)">SUPORTE</button>
+            <button class="tab-btn" onclick="carregarAba('lideranca', event)">LIDERANÇA</button>
         </div>
-        <div class="controls">
-            <input type="text" id="searchInput" class="search-box" placeholder="Buscar por Nome ou Discord..." oninput="filtrarCards()">
-            <select id="statusFilter" class="filter-box" onchange="filtrarCards()">
-                <option value="todos">Todos os Status</option>
-                <option value="pendente">Pendentes</option>
-                <option value="aprovado">Aprovados</option>
-                <option value="reprovado">Reprovados</option>
-            </select>
+        <div class="search-area">
+            <input type="text" id="searchInput" class="search-box" placeholder="Filtrar por nome ou discord..." oninput="filtrar()">
         </div>
     </div>
 
@@ -225,19 +188,20 @@
         </div>
 
     <div class="modal" id="modalDetalhes">
-        <div class="modal-content-wrapper">
+        <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalTitle">Detalhes da Candidatura</h2>
-                <button class="btn-close" onclick="fecharModal()"><i class="fa-solid fa-xmark"></i></button>
+                <h3 id="modalTitle">Detalhes</h3>
+                <button onclick="fecharModal()" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;">&times;</button>
             </div>
-            <div class="modal-body" id="modalBody">
-                </div>
-            <div class="modal-footer" id="modalFooter">
-                </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="btn-approve" id="btnApproveAction">APROVAR</button>
+                <button class="btn-reject" id="btnRejectAction">REPROVAR</button>
+            </div>
         </div>
     </div>
 
-    <div class="toast-wrapper" id="toastBox"></div>
+    <div id="toastBox"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -258,264 +222,130 @@
         const db = getFirestore(app);
 
         let abaAtual = 'suporte';
-        let dadosAtuais = []; 
+        let dadosLocais = [];
 
-        // Função de Toasts Globais
-        window.emitirToast = function(mensagem, tipo = 'success') {
-            const caixa = document.getElementById('toastBox');
-            const toast = document.createElement('div');
-            toast.className = `toast ${tipo}`;
-            
-            let icone = '<i class="fa-solid fa-info-circle"></i>';
-            if(tipo === 'success') icone = '<i class="fa-solid fa-check"></i>';
-            if(tipo === 'error') icone = '<i class="fa-solid fa-triangle-exclamation"></i>';
-                
-            toast.innerHTML = `${icone} <span>${mensagem}</span>`;
-            caixa.appendChild(toast);
-
-            setTimeout(() => toast.classList.add('show'), 10);
-            setTimeout(() => { 
-                toast.classList.remove('show'); 
-                setTimeout(() => toast.remove(), 400); 
-            }, 3000);
+        // Criar Partículas (Efeito Borboleta)
+        function initParticles() {
+            const container = document.getElementById('particles');
+            for(let i=0; i<20; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const size = Math.random() * 5 + 2 + 'px';
+                p.style.width = size;
+                p.style.height = size;
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.animationDuration = Math.random() * 10 + 10 + 's';
+                p.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(p);
+            }
         }
+        initParticles();
 
-        // Proteção de Rota
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                window.location.href = 'index.html'; 
-            } else {
-                carregarAba('suporte');
-            }
+        onAuthStateChanged(auth, user => {
+            if(!user) window.location.href = 'index.html';
+            else carregarAba('suporte');
         });
 
-        document.getElementById('btnLogout').addEventListener('click', () => {
-            signOut(auth).then(() => window.location.href = 'index.html');
-        });
+        document.getElementById('btnLogout').onclick = () => signOut(auth);
 
-        // Buscar Dados
-        window.carregarAba = async function(aba, event) {
+        window.carregarAba = async (aba, e) => {
             abaAtual = aba;
-            
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            if(event) {
-                event.currentTarget.classList.add('active');
-            } else {
-                document.querySelector(`.tab-btn[onclick*="${aba}"]`).classList.add('active');
+            if(e) {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
             }
-
-            // Resetar filtros
-            document.getElementById('searchInput').value = '';
-            document.getElementById('statusFilter').value = 'todos';
 
             const container = document.getElementById('listaCandidatos');
-            container.innerHTML = '<div class="loading"><i class="fa-solid fa-circle-notch fa-spin"></i><p>Sincronizando com o banco de dados...</p></div>';
+            container.innerHTML = '<p>Buscando...</p>';
 
             const colecao = aba === 'suporte' ? 'candidatos_suporte' : 'candidatos_lideranca';
-            
-            try {
-                const snapshot = await getDocs(collection(db, colecao));
-                dadosAtuais = [];
-                
-                if (snapshot.empty) {
-                    container.innerHTML = `<div class="loading"><p>Nenhuma ficha encontrada em "${colecao}".</p></div>`;
-                    return;
-                }
+            const snap = await getDocs(collection(db, colecao));
+            dadosLocais = [];
 
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    data.id = doc.id;
-                    data.status = data.status || 'pendente'; // Define status padrão
-                    dadosAtuais.push(data);
-                });
-
-                // Ordenar do mais recente para o mais antigo via JS
-                dadosAtuais.sort((a, b) => {
-                    let dataA = a.data_inscricao || a.data || { seconds: 0 };
-                    let dataB = b.data_inscricao || b.data || { seconds: 0 };
-                    return dataB.seconds - dataA.seconds;
-                });
-
-                renderizarCards(dadosAtuais);
-
-            } catch (error) {
-                console.error("Erro detalhado: ", error);
-                container.innerHTML = `<div class="loading"><p>Erro ao carregar: ${error.message}</p></div>`;
-            }
+            container.innerHTML = '';
+            snap.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id;
+                data.status = data.status || 'pendente';
+                dadosLocais.push(data);
+                renderCard(data);
+            });
         };
 
-        // Renderizar Cards na Tela
-        function renderizarCards(lista) {
+        function renderCard(data) {
+            const container = document.getElementById('listaCandidatos');
+            const nome = abaAtual === 'suporte' ? (data.basico?.nome || 'Candidato') : 'Liderança';
+            const discord = abaAtual === 'suporte' ? (data.basico?.discord || '@discord') : (data.discord || '@discord');
+            
+            const card = document.createElement('div');
+            card.className = 'candidato-card';
+            card.innerHTML = `
+                <span class="status-badge status-${data.status}">${data.status}</span>
+                <div class="card-name">${nome}</div>
+                <div class="card-discord"><i class="fa-brands fa-discord"></i> ${discord}</div>
+                <button class="btn-open" onclick="abrirModal('${data.id}')">AVALIAR FICHA</button>
+            `;
+            container.appendChild(card);
+        }
+
+        window.abrirModal = (id) => {
+            const item = dadosLocais.find(d => d.id === id);
+            const body = document.getElementById('modalBody');
+            body.innerHTML = '';
+            
+            document.getElementById('modalTitle').innerText = "Ficha de Candidato";
+            
+            // Renderizar perguntas dinamicamente
+            if(abaAtual === 'suporte') {
+                Object.entries(item).forEach(([key, val]) => {
+                    if(typeof val === 'object' && key !== 'id') {
+                        Object.entries(val).forEach(([pergunta, resposta]) => {
+                            body.innerHTML += `<div class="qa-box"><label>${pergunta.replace(/_/g,' ')}</label><p>${resposta}</p></div>`;
+                        });
+                    }
+                });
+            } else {
+                if(item.respostas) {
+                    Object.entries(item.respostas).forEach(([q, a]) => {
+                        body.innerHTML += `<div class="qa-box"><label>${q}</label><p>${a}</p></div>`;
+                    });
+                }
+            }
+
+            document.getElementById('btnApproveAction').onclick = () => atualizarStatus(id, 'aprovado');
+            document.getElementById('btnRejectAction').onclick = () => atualizarStatus(id, 'reprovado');
+            
+            document.getElementById('modalDetalhes').classList.add('active');
+        };
+
+        window.fecharModal = () => document.getElementById('modalDetalhes').classList.remove('active');
+
+        async function atualizarStatus(id, status) {
+            const colecao = abaAtual === 'suporte' ? 'candidatos_suporte' : 'candidatos_lideranca';
+            await updateDoc(doc(db, colecao, id), { status });
+            toast(`Candidato ${status}!`);
+            fecharModal();
+            carregarAba(abaAtual);
+        }
+
+        function toast(msg) {
+            const b = document.getElementById('toastBox');
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerText = msg;
+            b.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        window.filtrar = () => {
+            const termo = document.getElementById('searchInput').value.toLowerCase();
             const container = document.getElementById('listaCandidatos');
             container.innerHTML = '';
-
-            if (lista.length === 0) {
-                container.innerHTML = '<div class="loading"><p>Nenhum resultado encontrado para os filtros atuais.</p></div>';
-                return;
-            }
-
-            lista.forEach(data => {
-                let dataFormatada = "Data não registrada";
-                if(data.data_inscricao && data.data_inscricao.toDate) {
-                    dataFormatada = data.data_inscricao.toDate().toLocaleDateString('pt-BR');
-                } else if (data.data && data.data.toDate) { 
-                    dataFormatada = data.data.toDate().toLocaleDateString('pt-BR');
-                }
-
-                const discord = abaAtual === 'suporte' ? (data.basico?.discord || 'Sem Discord') : (data.discord || 'Sem Discord');
-                const nome = abaAtual === 'suporte' ? (data.basico?.nome || 'Candidato') : 'Candidatura Liderança';
-                
-                let badgeStatus = `<span class="badge-status status-pendente"><i class="fa-regular fa-clock"></i> Pendente</span>`;
-                if(data.status === 'aprovado') badgeStatus = `<span class="badge-status status-aprovado"><i class="fa-solid fa-check"></i> Aprovado</span>`;
-                if(data.status === 'reprovado') badgeStatus = `<span class="badge-status status-reprovado"><i class="fa-solid fa-xmark"></i> Reprovado</span>`;
-
-                const card = document.createElement('div');
-                card.className = 'candidato-card';
-                card.innerHTML = `
-                    <div class="candidato-header">
-                        <div>
-                            <div class="candidato-nome">${nome}</div>
-                            <div class="candidato-discord"><i class="fa-brands fa-discord"></i> ${discord}</div>
-                        </div>
-                        <div class="badges-container">
-                            ${badgeStatus}
-                            <span class="badge-data">${dataFormatada}</span>
-                        </div>
-                    </div>
-                    <button class="btn-view" onclick="abrirModal('${data.id}')">
-                        <i class="fa-solid fa-folder-open"></i> Avaliar Ficha
-                    </button>
-                `;
-                container.appendChild(card);
+            dadosLocais.forEach(d => {
+                const str = JSON.stringify(d).toLowerCase();
+                if(str.includes(termo)) renderCard(d);
             });
-        }
-
-        // Filtros (Busca e Select)
-        window.filtrarCards = function() {
-            const termo = document.getElementById('searchInput').value.toLowerCase();
-            const statusFiltrado = document.getElementById('statusFilter').value;
-
-            const listaFiltrada = dadosAtuais.filter(item => {
-                const discord = (abaAtual === 'suporte' ? item.basico?.discord : item.discord) || '';
-                const nome = (abaAtual === 'suporte' ? item.basico?.nome : '') || '';
-                
-                const matchTexto = nome.toLowerCase().includes(termo) || discord.toLowerCase().includes(termo);
-                const matchStatus = statusFiltrado === 'todos' || item.status === statusFiltrado;
-
-                return matchTexto && matchStatus;
-            });
-
-            renderizarCards(listaFiltrada);
         };
-
-        // Abrir Modal
-        window.abrirModal = function(id) {
-            const candidato = dadosAtuais.find(c => c.id === id);
-            if(!candidato) return;
-
-            const modalBody = document.getElementById('modalBody');
-            const modalFooter = document.getElementById('modalFooter');
-            const nomeExibicao = abaAtual === 'suporte' ? (candidato.basico?.nome || 'Candidato') : candidato.discord;
-            
-            document.getElementById('modalTitle').innerText = abaAtual === 'suporte' ? `Ficha: ${nomeExibicao}` : `Ficha Liderança: ${nomeExibicao}`;
-            modalBody.innerHTML = '';
-
-            // Conteúdo da Ficha
-            if (abaAtual === 'suporte') {
-                renderizarBloco(modalBody, "Dados Básicos", candidato.basico);
-                renderizarBloco(modalBody, "Perfil", candidato.perfil);
-                renderizarBloco(modalBody, "Situações Práticas", candidato.pratica);
-                renderizarBloco(modalBody, "Disponibilidade", candidato.disponibilidade);
-                renderizarBloco(modalBody, "Técnico", candidato.tecnico);
-                renderizarBloco(modalBody, "Psicológico", candidato.psicologico);
-            } else {
-                let htmlRespostas = '';
-                if(candidato.respostas) {
-                    const chaves = Object.keys(candidato.respostas).sort((a, b) => {
-                        return parseInt(a.replace('pergunta_', '')) - parseInt(b.replace('pergunta_', ''));
-                    });
-                    
-                    chaves.forEach(key => {
-                        const num = key.replace('pergunta_', '');
-                        htmlRespostas += `
-                            <div class="qa-block">
-                                <div class="qa-pergunta">Pergunta ${num}</div>
-                                <div class="qa-resposta">${candidato.respostas[key]}</div>
-                            </div>
-                        `;
-                    });
-                }
-                modalBody.innerHTML = htmlRespostas;
-            }
-
-            // Injetar Botões de Ação Dinâmicos
-            modalFooter.innerHTML = `
-                <button class="btn-action btn-approve" onclick="alterarStatus('${id}', 'aprovado')">
-                    <i class="fa-solid fa-check"></i> Aprovar
-                </button>
-                <button class="btn-action btn-reject" onclick="alterarStatus('${id}', 'reprovado')">
-                    <i class="fa-solid fa-xmark"></i> Reprovar
-                </button>
-            `;
-            
-            if(candidato.status !== 'pendente') {
-                modalFooter.innerHTML += `
-                    <button class="btn-action btn-pending" onclick="alterarStatus('${id}', 'pendente')">
-                        <i class="fa-solid fa-rotate-left"></i> Desfazer
-                    </button>
-                `;
-            }
-
-            document.getElementById('modalDetalhes').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        };
-
-        window.fecharModal = function() {
-            document.getElementById('modalDetalhes').classList.remove('active');
-            document.body.style.overflow = '';
-        };
-
-        // Alterar Status no Firebase
-        window.alterarStatus = async function(id, novoStatus) {
-            const colecao = abaAtual === 'suporte' ? 'candidatos_suporte' : 'candidatos_lideranca';
-            const docRef = doc(db, colecao, id);
-
-            try {
-                await updateDoc(docRef, { status: novoStatus });
-                
-                const index = dadosAtuais.findIndex(c => c.id === id);
-                if(index !== -1) {
-                    dadosAtuais[index].status = novoStatus;
-                }
-
-                emitirToast(`Status alterado para ${novoStatus.toUpperCase()}!`, novoStatus === 'reprovado' ? 'error' : 'success');
-                fecharModal();
-                filtrarCards(); 
-
-            } catch (error) {
-                console.error("Erro ao atualizar status:", error);
-                emitirToast("Erro ao alterar status. Verifique as permissões.", "error");
-            }
-        };
-
-        // Helper para blocos do Suporte
-        function renderizarBloco(container, titulo, objeto) {
-            if(!objeto) return;
-            let html = `<h3 style="color: var(--text-main); margin: 20px 0 10px; font-size: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 5px;">${titulo}</h3>`;
-            
-            for (const [chave, valor] of Object.entries(objeto)) {
-                let displayValor = Array.isArray(valor) ? valor.join(', ') : valor;
-                let chaveFormatada = chave.replace(/_/g, ' ').toUpperCase();
-                html += `
-                    <div class="qa-block">
-                        <div class="qa-pergunta">${chaveFormatada}</div>
-                        <div class="qa-resposta">${displayValor || 'Não respondido'}</div>
-                    </div>
-                `;
-            }
-            container.innerHTML += html;
-        }
-
     </script>
 </body>
 </html>
